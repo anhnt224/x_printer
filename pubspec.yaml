@@ -17,6 +17,8 @@ dev_dependencies:
   mockito: ^5.4.4
   flutter_lints: ^3.0.0
 
+repository: https://github.com/anhnt224/x_printer
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 XPrinter plugin project.
                        DESC
-  s.homepage         = 'https://example.com'
+  s.homepage         = 'https://github.com/anhnt224/x_printer'
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'AnhNT' => 'anhnt019@gmail.com' }
   s.source           = { :path => '.' }
