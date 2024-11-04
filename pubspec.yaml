@@ -1,6 +1,6 @@
 name: x_printer
 description: "With this plugin you can connect to POS printers and print text, images, qrcode and barcode."
-version: 0.0.1
+version: 0.0.2
 homepage:
 
 environment:
