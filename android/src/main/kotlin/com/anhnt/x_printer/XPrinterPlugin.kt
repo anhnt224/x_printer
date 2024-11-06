@@ -88,31 +88,25 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
                 bleManager.startScan()
                 result.success(null)
             }
-
             "stopScan" -> {
                 Log.d(TAG, "onMethodCall: stopScan")
                 bleManager.stopScan()
                 result.success(null)
             }
-
             "isScanning" -> {
                 result.success(bleManager.isScanning)
             }
-
             "connect" -> {
                 handleConnect(call, result)
             }
-
             "disconnect" -> {
                 Log.d(TAG, "onMethodCall: disconnect ")
                 bleManager.disconnect()
             }
-
             "printerIsConnect" -> {
                 Log.d(TAG, "onMethodCall: printerIsConnect")
                 result.success(true)
             }
-
             "printText" -> {
                 handlePrinttext(call, result)
             }
@@ -124,6 +118,9 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
                 PosActivity.instance.cutPaper(
                     bleManager.printer!!
                 )
+            }
+            "printImage" -> {
+                handlePrintImage(call, result)
             }
 
             else -> {
@@ -171,6 +168,31 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
 
         val attr = PTextAttr.from(args)
         PosActivity.instance.printText(attr, bleManager.printer!!)
+    }
+
+    private fun handlePrintImage(call: MethodCall, result: Result){
+        val args = call.arguments as? Map<String, Any> ?: run {
+            invalidArgs(result)
+            return
+        }
+
+        val base64Encoded = args["data"] as? String ?: run {
+            invalidArgs(result)
+            return
+        }
+
+        if(bleManager.printer == null){
+            invalidPrinter(result)
+            return
+        }
+
+        val width = args["width"] as? Int ?: 500
+
+        PosActivity.instance.printImage(
+            base64Encoded,
+            width,
+            bleManager.printer!!
+        )
     }
 
     private fun invalidArgs(result: Result) {

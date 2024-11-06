@@ -1,6 +1,9 @@
 package com.anhnt.x_printer
 
 import PTextAttr
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
 import net.posprinter.POSConst
 import net.posprinter.POSPrinter
 
@@ -33,6 +36,13 @@ class PosActivity {
             attributes[attr.attribute],
             textSize[attr.height]
         )
+    }
+
+    fun  printImage(base64: String, with: Int, printer: POSPrinter){
+        val bytes = Base64.decode(base64, Base64.DEFAULT)
+        val bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        printer.initializePrinter()
+            .printBitmap(bm, POSConst.ALIGNMENT_CENTER, with)
     }
 
     fun cutPaper(printer: POSPrinter) {

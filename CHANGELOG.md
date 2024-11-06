@@ -1,3 +1,7 @@
+## 0.0.4
+
+- Support for image printing
+
 ## 0.0.3
 
 - Support for text printing and paper cutting on Android

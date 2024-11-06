@@ -77,6 +77,8 @@ class BleManager(
         Log.d(TAG, "Start scan")
         onScanningChanged(true)
         bluetoothAdapter.startDiscovery()
+
+        onDevicesChanged(devices)
     }
 
     @SuppressLint("MissingPermission")
