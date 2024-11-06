@@ -1,3 +1,7 @@
+## 0.0.3
+
+- Support for text printing and paper cutting on Android
+
 ## 0.0.2
 
 - update readme
