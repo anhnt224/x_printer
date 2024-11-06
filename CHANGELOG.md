@@ -1,3 +1,7 @@
+## 0.0.5
+
+- Fix lateinit bleManager issue
+
 ## 0.0.4
 
 - Support for image printing
