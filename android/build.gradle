@@ -60,7 +60,7 @@ android {
         testImplementation("org.jetbrains.kotlin:kotlin-test")
         testImplementation("org.mockito:mockito-core:5.0.0")
         implementation files('libs/printer-lib-3.2.0.jar')
-//        implementation files('libs/flutter.jar')
+        implementation files('libs/flutter.jar')
     }
 
     testOptions {

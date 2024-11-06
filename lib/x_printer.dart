@@ -8,8 +8,6 @@ export 'package:x_printer/printer_models.dart';
 /// Offers functionality to scan for devices, connect, disconnect,
 /// and send print commands to Bluetooth printers.
 class XPrinter {
-  XPrinter();
-
   /// Starts scanning for Bluetooth printers.
   Future<void> startScan() {
     return BluetoothPrinter.instance.startScan();

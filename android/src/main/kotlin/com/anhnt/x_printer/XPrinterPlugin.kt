@@ -78,7 +78,6 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
 
                 Log.d(TAG, "peripheralEventSink: ${devices}")
             })
-        bleManager.startScan()
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -130,9 +129,11 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
         }
     }
 
-
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
+        statusChannel.setStreamHandler(null)
+        scanningChannel.setStreamHandler(null)
+        peripheralChannel.setStreamHandler(null)
     }
 
     private fun handleConnect(call: MethodCall, result: Result) {
