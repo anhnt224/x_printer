@@ -44,6 +44,9 @@ flutter:
 
       ios:
         pluginClass: XPrinterPlugin
+      android:
+        package: com.anhnt.x_printer
+        pluginClass: XPrinterPlugin
     # -------------------
 
   # To add assets to your plugin package, add an assets section, like this:
