@@ -1,5 +1,7 @@
 package com.anhnt.x_printer
 
+import PBarCodeAttr
+import PQrcodeAttr
 import PTextAttr
 import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -87,30 +89,37 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
                 bleManager.startScan()
                 result.success(null)
             }
+
             "stopScan" -> {
                 Log.d(TAG, "onMethodCall: stopScan")
                 bleManager.stopScan()
                 result.success(null)
             }
+
             "isScanning" -> {
                 result.success(bleManager.isScanning)
             }
+
             "connect" -> {
                 handleConnect(call, result)
             }
+
             "disconnect" -> {
                 Log.d(TAG, "onMethodCall: disconnect ")
                 bleManager.disconnect()
             }
+
             "printerIsConnect" -> {
                 Log.d(TAG, "onMethodCall: printerIsConnect")
                 result.success(true)
             }
+
             "printText" -> {
                 handlePrinttext(call, result)
             }
+
             "cutPaper" -> {
-                if(bleManager.printer == null){
+                if (bleManager.printer == null) {
                     invalidPrinter(result)
                     return
                 }
@@ -118,8 +127,17 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
                     bleManager.printer!!
                 )
             }
+
             "printImage" -> {
                 handlePrintImage(call, result)
+            }
+
+            "printQrCode" -> {
+                handlePrintQRCode(call, result)
+            }
+
+            "printBarcode" -> {
+                handlePrintBarcode(call, result)
             }
 
             else -> {
@@ -155,14 +173,14 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
         result.success(null)
     }
 
-    private fun handlePrinttext(call: MethodCall, result: Result){
+    private fun handlePrinttext(call: MethodCall, result: Result) {
         val args = call.arguments as? Map<String, Any> ?: run {
             invalidArgs(result)
             return
         }
 
 
-        if(bleManager.printer == null){
+        if (bleManager.printer == null) {
             invalidPrinter(result)
             return
         }
@@ -171,7 +189,7 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
         PosActivity.instance.printText(attr, bleManager.printer!!)
     }
 
-    private fun handlePrintImage(call: MethodCall, result: Result){
+    private fun handlePrintImage(call: MethodCall, result: Result) {
         val args = call.arguments as? Map<String, Any> ?: run {
             invalidArgs(result)
             return
@@ -182,7 +200,7 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
             return
         }
 
-        if(bleManager.printer == null){
+        if (bleManager.printer == null) {
             invalidPrinter(result)
             return
         }
@@ -194,6 +212,27 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
             width.toInt(),
             bleManager.printer!!
         )
+    }
+
+    private fun handlePrintQRCode(call: MethodCall, result: Result) {
+        val args = call.arguments as? Map<String, Any> ?: run {
+            invalidArgs(result)
+            return
+        }
+
+        val attr = PQrcodeAttr.from(args);
+
+        PosActivity.instance.printQRCode(bleManager.printer!!, attr)
+    }
+
+    private fun handlePrintBarcode(call: MethodCall, result: Result) {
+        val args = call.arguments as? Map<String, Any> ?: run {
+            invalidArgs(result)
+            return
+        }
+
+        val attr = PBarCodeAttr.from(args)
+        PosActivity.instance.printBarcode(bleManager.printer!!, attr)
     }
 
     private fun invalidArgs(result: Result) {
