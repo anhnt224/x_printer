@@ -86,7 +86,7 @@ abstract class BluetoothPrinter {
   /// Prints an image from a base64 encoded string.
   ///
   /// - [base64Encoded] The base64 encoded image data.
-  Future<void> printImage(String base64Encoded) {
+  Future<void> printImage(String base64Encoded, double width) {
     throw UnimplementedError('printImage() has not been implemented.');
   }
 

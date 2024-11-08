@@ -53,13 +53,7 @@ public class XPrinterPlugin: NSObject, FlutterPlugin {
                 return
             }
             
-            let peripheral = bluetoothManager.discoveredPeripherals.first(where: { $0.identifier.uuidString == deviceId })
-            if(peripheral == nil){
-                result(FlutterError(code: "DEVICE_NOT_FOUND", message: "Device not found!", details: nil))
-                return
-            }
-            
-            bluetoothManager.connect(to: peripheral!)
+            bluetoothManager.connect(to: deviceId)
             result(nil)
         case "printerIsConnect":
             result(bluetoothManager.printerIsConnect())
@@ -134,8 +128,6 @@ public class XPrinterPlugin: NSObject, FlutterPlugin {
     func cutPaper(bluetoothManager: BluetoothManager) {
         var data = Data()
         
-        data.append(POSCommand.printAndFeedLine())
-        data.append(POSCommand.printAndFeedLine())
         data.append(POSCommand.printAndFeedLine())
         data.append(POSCommand.printAndFeedLine())
         data.append(POSCommand.printAndFeedLine())

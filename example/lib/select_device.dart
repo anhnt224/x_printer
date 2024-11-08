@@ -18,6 +18,10 @@ class _SelectDeviceState extends State<SelectDevice> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
         widget.plugin.startScan();
+
+        widget.plugin.statusStream.listen((value) {
+          print(">>> status: ${value.status.name}");
+        });
       },
     );
   }

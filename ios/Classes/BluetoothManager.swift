@@ -19,6 +19,7 @@ class BluetoothManager: NSObject, POSBLEManagerDelegate {
     var statusMessage: String = "Disconnected"
     var printerStatusMessage: String = ""
     var printerSN: String = ""
+    private var connectTimeoutTimer: DispatchSourceTimer?
     
     private let posManager = POSBLEManager.sharedInstance()
     
@@ -43,13 +44,26 @@ class BluetoothManager: NSObject, POSBLEManagerDelegate {
         scanningSink?(false)
     }
     
-    func connect(to peripheral: CBPeripheral) {
-        posManager?.connectDevice(peripheral)
+    func connect(to uuid: String) {
+        startConnectTimeoutTimer()
         statusMessage = "Connecting..."
-
+        
         statusSink?([
             "status": PeripheralStatus.connecting.rawValue
         ])
+        
+        let peripheral = discoveredPeripherals.first(where: { $0.identifier.uuidString == uuid })
+        
+        if(peripheral == nil){
+            statusSink?([
+                "status": PeripheralStatus.connectFailed.rawValue,
+                "uuid": uuid,
+                "statusMessage": "Device not founded"
+            ])
+            return
+        }
+        
+        posManager?.connectDevice(peripheral)
     }
     
     func disconnect() {
@@ -83,7 +97,6 @@ class BluetoothManager: NSObject, POSBLEManagerDelegate {
         peripheralSink?(discoveredPeripherals.map({ e in
             e.toDict()
         }))
-        print(">>> \(discoveredPeripherals)")
     }
     
     func poSbleConnect(_ peripheral: CBPeripheral!) {
@@ -97,6 +110,7 @@ class BluetoothManager: NSObject, POSBLEManagerDelegate {
     }
     
     func poSbleFail(toConnect peripheral: CBPeripheral!, error: Error!) {
+        invalidateConnectTimeoutTimer()
         statusMessage = "Failed to Connect: \(error.localizedDescription)"
         
         statusSink?([
@@ -107,6 +121,7 @@ class BluetoothManager: NSObject, POSBLEManagerDelegate {
     }
     
     func poSbleDisconnectPeripheral(_ peripheral: CBPeripheral!, error: Error!) {
+        invalidateConnectTimeoutTimer()
         statusMessage = "Disconnected"
         isConnected = false
         
@@ -114,6 +129,35 @@ class BluetoothManager: NSObject, POSBLEManagerDelegate {
             "status": PeripheralStatus.disconnected.rawValue,
             "uuid": peripheral.identifier.uuidString,
         ])
+    }
+    
+    // MARK: - Timeout Handling
+    private func startConnectTimeoutTimer() {
+        invalidateConnectTimeoutTimer()
+        
+        connectTimeoutTimer = DispatchSource.makeTimerSource(queue: DispatchQueue.main)
+        connectTimeoutTimer?.schedule(deadline: .now() + 10)
+        
+        connectTimeoutTimer?.setEventHandler { [weak self] in
+            self?.handleConnectionTimeout()
+        }
+        
+        connectTimeoutTimer?.resume()
+    }
+    
+    private func invalidateConnectTimeoutTimer() {
+        connectTimeoutTimer?.cancel()
+        connectTimeoutTimer = nil
+    }
+    
+    private func handleConnectionTimeout() {
+        if !isConnected {
+            statusMessage = "Connection Timed Out"
+            statusSink?([
+                "status": PeripheralStatus.connectFailed.rawValue,
+                "statusMessage": "Connection timed out"
+            ])
+        }
     }
     
 }

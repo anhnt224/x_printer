@@ -93,10 +93,8 @@ class XPrinter {
   /// Prints an image from a base64 encoded string.
   ///
   /// - [base64Encoded] Base64 encoded image data.
-  Future<void> printImage(
-    String base64Encoded,
-  ) {
-    return BluetoothPrinter.instance.printImage(base64Encoded);
+  Future<void> printImage(String base64Encoded, {double width = 460}) {
+    return BluetoothPrinter.instance.printImage(base64Encoded, width);
   }
 
   /// Checks if the printer is currently connected.

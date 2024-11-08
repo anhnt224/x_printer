@@ -139,9 +139,9 @@ class BluetoothPrinterChannel extends BluetoothPrinter {
   /// Parameters:
   /// - [base64Encoded] The base64 encoded image data.
   @override
-  Future<void> printImage(String base64Encoded) async {
-    await methodChannel
-        .invokeMethod<void>('printImage', {'data': base64Encoded});
+  Future<void> printImage(String base64Encoded, double width) async {
+    await methodChannel.invokeMethod<void>(
+        'printImage', {'data': base64Encoded, 'width': width});
   }
 
   /// Sends a command to cut the paper.
