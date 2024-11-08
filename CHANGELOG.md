@@ -1,7 +1,8 @@
 ## 0.0.6
 
 - Add connection timeout (ios)
-- set width for printImage
+- Set width for printImage
+- Support print Barcode, QRCode (Android)
 
 ## 0.0.5
 
