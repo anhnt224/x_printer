@@ -1,3 +1,7 @@
+## 0.0.7
+
+- fix issue "Error registering plugin x_printer"
+
 ## 0.0.6
 
 - Add connection timeout (ios)

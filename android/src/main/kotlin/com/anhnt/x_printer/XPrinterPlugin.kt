@@ -3,6 +3,11 @@ package com.anhnt.x_printer
 import PBarCodeAttr
 import PQrcodeAttr
 import PTextAttr
+import android.Manifest
+import android.annotation.TargetApi
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.EventChannel
@@ -11,7 +16,6 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import net.posprinter.POSConst
 import toDict
 
 /** XPrinterPlugin */
@@ -27,6 +31,8 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
     private var statusEventSink: EventChannel.EventSink? = null
     private var scanningEventSink: EventChannel.EventSink? = null
     private var peripheralEventSink: EventChannel.EventSink? = null
+
+    private lateinit var applicationContext: Context
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         Log.d(TAG, "onAttachedToEngine")
@@ -67,7 +73,23 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
             }
         })
 
-        bleManager = BleManager(context = flutterPluginBinding.applicationContext,
+        applicationContext = flutterPluginBinding.applicationContext
+        initBleManager()
+    }
+
+
+    private fun initBleManager() {
+        if (::bleManager.isInitialized) {
+            return
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (applicationContext.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                return
+            }
+        }
+
+        bleManager = BleManager(context = applicationContext,
             onStatusChanged = { status ->
                 statusEventSink?.success(status)
                 Log.d(TAG, "statusEventSink: ${status}")
@@ -83,6 +105,17 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
+
+        if(!::bleManager.isInitialized){
+            initBleManager()
+
+            if(!::bleManager.isInitialized){
+                result.error("PERMISSION_DENIED", "BLUETOOTH_CONNECT is denined", null)
+                return
+            }
+        }
+
+
         when (call.method) {
             "startScan" -> {
                 Log.d(TAG, "onMethodCall: startScan")
