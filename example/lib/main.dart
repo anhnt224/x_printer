@@ -231,15 +231,13 @@ class _MyAppState extends State<MyApp> {
     final img.Image? image = img.decodeImage(await file.readAsBytes());
 
     if (image != null) {
-      print("object: ${image.width}x${image.height}");
       final img.Image resizedImage = img.copyResize(image, width: 460);
-      print('resizedImage: ${resizedImage.width}x${resizedImage.height}');
 
       final List<int> compressedImage = img.encodePng(resizedImage);
 
       final String base64Image = base64Encode(compressedImage);
 
-      _plugin.printImage(base64Image);
+      _plugin.printImage(base64Image, width: 460);
       _plugin.cutPaper();
     } else {
       print('Failed to decode image');

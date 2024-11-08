@@ -187,11 +187,11 @@ class XPrinterPlugin : FlutterPlugin, MethodCallHandler {
             return
         }
 
-        val width = args["width"] as? Int ?: 500
+        val width = args["width"] as? Double ?: 500
 
         PosActivity.instance.printImage(
             base64Encoded,
-            width,
+            width.toInt(),
             bleManager.printer!!
         )
     }

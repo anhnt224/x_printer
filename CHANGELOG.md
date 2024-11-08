@@ -1,3 +1,8 @@
+## 0.0.6
+
+- Add connection timeout (ios)
+- set width for printImage
+
 ## 0.0.5
 
 - Fix lateinit bleManager issue

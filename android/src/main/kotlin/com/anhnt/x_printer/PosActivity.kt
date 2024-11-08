@@ -47,6 +47,7 @@ class PosActivity {
 
     fun cutPaper(printer: POSPrinter) {
         printer.initializePrinter()
+            .feedLine(3)
             .cutHalfAndFeed(1)
     }
 }
