@@ -32,6 +32,15 @@ dependencies:
   x_printer:
 ```
 
+### iOS dependency managers
+
+The iOS plugin ships both a Swift package and a podspec, so it builds under
+Swift Package Manager and under CocoaPods. No extra setup is needed either way.
+
+The bundled printer SDK has no arm64 iOS Simulator slice, so iOS Simulator
+builds on Apple Silicon Macs fail to link. Test on a physical device, or run
+the simulator under Rosetta.
+
 ### Add permissions for Bluetooth
 
 We need to add permission to use Bluetooth and access location:

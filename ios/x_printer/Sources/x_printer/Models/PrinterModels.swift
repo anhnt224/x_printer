@@ -5,6 +5,9 @@
 //  Created by AnhNT on 4/11/24.
 //
 
+import Foundation
+import CoreBluetooth
+
 class PTextAttr {
     var align: Int32 = 0
     var attribute: Int32 = 0

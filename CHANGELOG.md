@@ -1,3 +1,8 @@
+## 0.0.8
+
+- Add Swift Package Manager support for iOS (CocoaPods still supported)
+- Ship the bundled iOS printer SDK as `PrinterSDK.xcframework` instead of a fat `.a`
+
 ## 0.0.7
 
 - fix issue "Error registering plugin x_printer"

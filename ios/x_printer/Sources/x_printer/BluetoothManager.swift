@@ -8,6 +8,12 @@
 import Foundation
 import CoreBluetooth
 
+// Under CocoaPods the vendored SDK headers are merged into this pod's own
+// module, so there is nothing named PrinterSDK to import.
+#if canImport(PrinterSDK)
+import PrinterSDK
+#endif
+
 class BluetoothManager: NSObject, POSBLEManagerDelegate {
     
     var scanningSink: ((Bool) -> Void)?

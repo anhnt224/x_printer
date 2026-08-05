@@ -1,6 +1,12 @@
 import Flutter
 import UIKit
 
+// Under CocoaPods the vendored SDK headers are merged into this pod's own
+// module, so there is nothing named PrinterSDK to import.
+#if canImport(PrinterSDK)
+import PrinterSDK
+#endif
+
 public class XPrinterPlugin: NSObject, FlutterPlugin {
   let bluetoothManager = BluetoothManager()
     private var statusSink: FlutterEventSink?

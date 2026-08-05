@@ -14,8 +14,10 @@ plugin that wraps BLE thermal-printer SDKs for Android (Kotlin) and iOS
 | `lib/printer_models.dart` | Shared enums/models (`PTextAlign`, `PTextAttribute`, `PBarcodeType`, `PrinterStatus`, `Peripheral`, ...). |
 | `android/src/main/kotlin/com/anhnt/x_printer/` | Android native impl: `XPrinterPlugin.kt` (channel handlers), `BleManager.kt` (BLE + printer SDK calls), `PosActivity.kt`, `models/PrinterModels.kt`. |
 | `android/libs/printer-lib-3.2.0.jar` | Vendor printer SDK for Android. |
-| `ios/Classes/` | iOS native impl: `XPrinterPlugin.swift`, `BluetoothManager.swift`, `Models/`, `StreamHandlers/` (one per event channel). |
-| `ios/PrinterSDK/libPrinterSDK.a` | Vendor printer SDK for iOS. |
+| `ios/x_printer/Sources/x_printer/` | iOS native impl: `XPrinterPlugin.swift`, `BluetoothManager.swift`, `Models/`, `StreamHandlers/` (one per event channel). |
+| `ios/x_printer/Package.swift` | Swift Package Manager manifest. Target name must stay `x_printer`; library name `x-printer`. |
+| `ios/x_printer/PrinterSDK.xcframework` | Vendor printer SDK for iOS (static lib, `ios-arm64` + `ios-x86_64-simulator`). |
+| `ios/x_printer.podspec` | CocoaPods manifest. Must point at the same `x_printer/Sources/...` paths as SPM. |
 | `example/` | Standalone Flutter app exercising the plugin — use it to manually test changes. |
 | `CHANGELOG.md`, `pubspec.yaml` (`version:`) | Must be bumped together on every publishable change. |
 
@@ -33,7 +35,7 @@ When adding or changing a printer feature, update all of these, in order:
 3. `lib/x_printer.dart` — expose it on `XPrinter`, forwarding to `BluetoothPrinter.instance`.
 4. `lib/bluetooth_printer_channel.dart` — wire it to `methodChannel.invokeMethod` (or an event channel) using a method name string.
 5. `android/.../XPrinterPlugin.kt` + `BleManager.kt` — handle that method name, call vendor SDK.
-6. `ios/Classes/XPrinterPlugin.swift` + `BluetoothManager.swift` — same, in Swift.
+6. `ios/x_printer/Sources/x_printer/XPrinterPlugin.swift` + `BluetoothManager.swift` — same, in Swift.
 7. `example/lib/main.dart` (or `select_device.dart`) — add a usage example if it's a new user-facing feature.
 8. `README.md` — update the feature table and usage snippet.
 9. `CHANGELOG.md` + `pubspec.yaml` `version:` — bump together (see below).
@@ -57,15 +59,33 @@ manually:
 
 - `flutter analyze` from repo root — must stay clean (`analysis_options.yaml` uses `flutter_lints`).
 - Android native: `android/src/test/kotlin/.../XPrinterPluginTest.kt` has unit tests — run via the Android Gradle test task if touching Kotlin.
-- iOS native: build `example/ios` (there's an `example/ios/RunnerTests/RunnerTests.swift`).
+- iOS native: both dependency managers must keep working, so build `example/` twice:
+
+  ```bash
+  flutter config --enable-swift-package-manager
+  cd example && flutter build ios --no-codesign --debug
+
+  flutter config --no-enable-swift-package-manager
+  cd example && rm -rf ios/Pods ios/Podfile.lock && flutter build ios --no-codesign --debug
+  ```
+
 - Manual end-to-end: run `example/` on a real device against an actual BLE printer — this plugin only works against real hardware, there's no simulator/mock BLE path.
 
 ## Native SDK constraints
 
 Printing logic is bounded by the vendor SDKs (`android/libs/printer-lib-3.2.0.jar`,
-`ios/PrinterSDK/libPrinterSDK.a`), which are prebuilt binaries, not source —
-don't try to edit them. Check their bundled headers/docs (iOS: `ios/PrinterSDK/Headers`)
-before assuming a capability doesn't exist.
+`ios/x_printer/PrinterSDK.xcframework`), which are prebuilt binaries, not source —
+don't try to edit them. Check their bundled headers (inside the xcframework's
+`Headers/`) before assuming a capability doesn't exist.
+
+The iOS SDK ships no arm64 iOS Simulator slice, so simulator builds on Apple
+Silicon fail to link. Build for a physical device when verifying iOS changes.
+
+Swift sources reach the ObjC SDK through two different module layouts: under
+SPM it is a separate `PrinterSDK` module, under CocoaPods its headers are
+merged into the pod's own module. That is why the Swift files guard the import
+with `#if canImport(PrinterSDK)`. Keep that guard on any new file that touches
+`POS*` / `PTable` types.
 
 ## Platform permissions
 
