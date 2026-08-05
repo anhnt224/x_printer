@@ -41,7 +41,7 @@ When adding or changing a printer feature, update all of these, in order:
 9. `CHANGELOG.md` + `pubspec.yaml` `version:` — bump together (see below).
 
 Method/channel name strings are the contract between Dart and native —
-grep all three sides (`grep -rn "methodName" lib android/src ios/Classes`)
+grep all three sides (`grep -rn "methodName" lib android/src ios/x_printer/Sources`)
 before renaming one.
 
 ## Versioning
