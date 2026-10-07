@@ -37,9 +37,10 @@ dependencies:
 The iOS plugin ships both a Swift package and a podspec, so it builds under
 Swift Package Manager and under CocoaPods. No extra setup is needed either way.
 
-The bundled printer SDK has no arm64 iOS Simulator slice, so iOS Simulator
-builds on Apple Silicon Macs fail to link. Test on a physical device, or run
-the simulator under Rosetta.
+The bundled printer SDK ships arm64 and x86_64 iOS Simulator slices, so the
+plugin builds and runs on Apple Silicon simulators (including iOS 26+, which
+no longer supports x86_64). Bluetooth hardware is not available in a
+simulator, so test actual printing on a physical device.
 
 ### Add permissions for Bluetooth
 

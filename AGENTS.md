@@ -16,7 +16,8 @@ plugin that wraps BLE thermal-printer SDKs for Android (Kotlin) and iOS
 | `android/libs/printer-lib-3.2.0.jar` | Vendor printer SDK for Android. |
 | `ios/x_printer/Sources/x_printer/` | iOS native impl: `XPrinterPlugin.swift`, `BluetoothManager.swift`, `Models/`, `StreamHandlers/` (one per event channel). |
 | `ios/x_printer/Package.swift` | Swift Package Manager manifest. Target name must stay `x_printer`; library name `x-printer`. |
-| `ios/x_printer/PrinterSDK.xcframework` | Vendor printer SDK for iOS (static lib, `ios-arm64` + `ios-x86_64-simulator`). |
+| `ios/x_printer/PrinterSDK.xcframework` | Vendor printer SDK for iOS (static lib, `ios-arm64` + `ios-arm64_x86_64-simulator`). |
+| `tool/arm64_to_sim.py` | Rebuilds the xcframework's arm64 simulator slice from the vendor arm64 device slice (see below). |
 | `ios/x_printer.podspec` | CocoaPods manifest. Must point at the same `x_printer/Sources/...` paths as SPM. |
 | `example/` | Standalone Flutter app exercising the plugin — use it to manually test changes. |
 | `CHANGELOG.md`, `pubspec.yaml` (`version:`) | Must be bumped together on every publishable change. |
@@ -59,14 +60,18 @@ manually:
 
 - `flutter analyze` from repo root — must stay clean (`analysis_options.yaml` uses `flutter_lints`).
 - Android native: `android/src/test/kotlin/.../XPrinterPluginTest.kt` has unit tests — run via the Android Gradle test task if touching Kotlin.
-- iOS native: both dependency managers must keep working, so build `example/` twice:
+- iOS native: both dependency managers and both destinations (device +
+  Apple Silicon simulator) must keep working, so build `example/` four times:
 
   ```bash
   flutter config --enable-swift-package-manager
   cd example && flutter build ios --no-codesign --debug
+  flutter build ios --simulator --debug
 
   flutter config --no-enable-swift-package-manager
-  cd example && rm -rf ios/Pods ios/Podfile.lock && flutter build ios --no-codesign --debug
+  cd example && rm -rf ios/Pods ios/Podfile.lock
+  flutter build ios --no-codesign --debug
+  flutter build ios --simulator --debug
   ```
 
 - Manual end-to-end: run `example/` on a real device against an actual BLE printer — this plugin only works against real hardware, there's no simulator/mock BLE path.
@@ -78,8 +83,23 @@ Printing logic is bounded by the vendor SDKs (`android/libs/printer-lib-3.2.0.ja
 don't try to edit them. Check their bundled headers (inside the xcframework's
 `Headers/`) before assuming a capability doesn't exist.
 
-The iOS SDK ships no arm64 iOS Simulator slice, so simulator builds on Apple
-Silicon fail to link. Build for a physical device when verifying iOS changes.
+The vendor iOS SDK ships only `arm64` (device) and `x86_64` (simulator)
+slices. Apple Silicon simulators need an `arm64` simulator slice, so the
+checked-in `ios-arm64_x86_64-simulator` slice is generated: the arm64 device
+objects are retargeted with `tool/arm64_to_sim.py` (it swaps each object's
+`LC_VERSION_MIN_IPHONEOS` for an `LC_BUILD_VERSION` with platform
+`IOSSIMULATOR`) and then `lipo`-ed together with the vendor x86_64 simulator
+slice. If the vendor ships a new SDK, redo that step:
+
+```bash
+cd $(mktemp -d) && ar x /path/to/new/ios-arm64/libPrinterSDK.a && rm -f __.SYMDEF
+python3 /path/to/tool/arm64_to_sim.py *.o
+xcrun libtool -static -o arm64-sim.a *.o
+lipo -create /path/to/new/ios-x86_64-simulator/libPrinterSDK.a arm64-sim.a \
+  -output ios-arm64_x86_64-simulator/libPrinterSDK.a
+```
+
+BLE itself still needs real hardware; the simulator only has to build and run.
 
 Swift sources reach the ObjC SDK through two different module layouts: under
 SPM it is a separate `PrinterSDK` module, under CocoaPods its headers are

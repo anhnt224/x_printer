@@ -1,3 +1,7 @@
+## 0.0.9
+
+- Add an arm64 iOS Simulator slice to the bundled `PrinterSDK.xcframework`, so the plugin builds for Apple Silicon simulators (required by iOS 26+ simulators)
+
 ## 0.0.8
 
 - Add Swift Package Manager support for iOS (CocoaPods still supported)
